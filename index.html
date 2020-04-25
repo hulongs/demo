@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>demo</title>
+<script type="text/javascript" src="jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="jquerysession.js"></script>
+<style type="text/css">
+.main{margin:0 auto; width:50%; border:#CCC 1px solid; height:550px;}
+.cont{padding-left:5px; height:500px;overflow:auto;}
+.cont ul li{list-style-type:none; line-height:30px;}
+.cont li {list-style-type:none;}
+.send{padding-left:5px;}
+.send .inp{height:27px; width:50%;}
+.send .sed{height:30px; margin-left:3px; width:80px;}
+#username{height:27px; width:80px;}
+</style>
+</head>
+
+<body>
+ <div class="main">
+   <div class="cont" id="cont_id">
+     <div style="text-align:center; color:#CCC; font-size:12px;"><a href="javascript:;" onclick="getlist(1);">获取历史消息</a>&nbsp;&nbsp;&nbsp;<a href="javascript:;" onclick="getlist(2);">获取最新消息</a></div>
+     <ul id="con">   
+     </ul>   
+   </div>
+  <div class="send">用名：<input name="" type="text" id="username" /> 内容：<input id="content" class="inp" name="" type="text" /><input class="sed" name="" type="button" value="send"/></div>
+  <input id="id_hos" name="id_hos" type="hidden" value="" />
+  <input id="id_new" name="id_new" type="hidden" value="" />
+ </div> 
+<script type="text/javascript">
+
+	
+var list = {};
+getlist(0);
+$(".sed").click(function(){
+	var content = $("#content").val();
+	var userName = $("#username").val();
+	if(	content)
+	{
+		  $.ajax({
+			type : "POST",
+			contentType: "application/json;charset=UTF-8",
+			url : "demo.php?action=send&content="+content+"&userName="+userName,
+			data : JSON.stringify(list),
+			success : function(result) {
+				result =  eval(result);
+				$("#id_new").val(result.id);
+				$("#con").append("<li>"+userName+"："+content+"</li>");
+				$("#content").val('');
+				var div = document.getElementById('cont_id');
+                    div.scrollTop = div.scrollHeight;
+			},
+			error : function(e){
+				console.log(e.status);
+				console.log(e.responseText);
+			}
+		});
+	}
+	else
+	{
+		alert('内容不能为空');	
+	}
+});
+ function getlist(type)
+ {
+	 var list = {};
+	 var str = '';
+        $.ajax({
+            type : "GET",
+            contentType: "application/json;charset=UTF-8",
+            url : "demo.php?action=list&type="+type+"&id_hos="+$("#id_hos").val()+"&id_new="+$("#id_new").val(),
+            data : JSON.stringify(list),
+            success : function(result) {
+				result =  eval(result);
+                //console.log(result);
+				for (var i=0;i<result.length;i++)
+				{
+					if(i == 0)
+					{
+						$("#id_hos").val(result[i].id);
+					}
+					if(i== result.length - 1 && type != 1)
+					{
+					    $("#id_new").val(result[i].id);
+					}
+					str = str+"<li>"+result[i].UserName+"："+result[i].Content+"</li>";			
+				}
+				if(type == 1)
+				{
+					if(str == "")
+					{
+						alert('没有历史消息了');
+					}
+					$("#con").prepend(str);
+				}
+				else if(type == 2)
+				{
+					if(str == "")
+					{
+						alert('没有最新消息了');
+					}
+					$("#con").append(str);
+				}
+				else
+				{
+					$("#con").append(str);
+				}
+            },
+            error : function(e){
+                console.log(e.status);
+                console.log(e.responseText);
+            }
+        });
+	 
+ }
+</script>
+</body>
+</html>
