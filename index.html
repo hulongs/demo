@@ -44,7 +44,7 @@ $(".sed").click(function(){
 			url : "demo.php?action=send&content="+content+"&userName="+userName,
 			data : JSON.stringify(list),
 			success : function(result) {
-				result =  eval(result);
+				//result =  eval(result);
 				$("#id_new").val(result.id);
 				$("#con").append("<li>"+userName+"："+content+"</li>");
 				$("#content").val('');
